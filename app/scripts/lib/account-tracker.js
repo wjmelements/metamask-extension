@@ -52,6 +52,10 @@ class AccountTracker extends EventEmitter {
     this.store.updateState({ accounts })
   }
 
+  removeAllAccounts () {
+    this.store.updateState({ accounts: {}})
+  }
+
   //
   // private
   //

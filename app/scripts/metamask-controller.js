@@ -348,7 +348,7 @@ module.exports = class MetamaskController extends EventEmitter {
       // KeyringController
       setLocked: nodeify(keyringController.setLocked, keyringController),
       createNewVaultAndKeychain: nodeify(keyringController.createNewVaultAndKeychain, keyringController),
-      createNewVaultAndRestore: nodeify(keyringController.createNewVaultAndRestore, keyringController),
+      createNewVaultAndRestore: this.createNewVaultAndRestore.bind(this),
       addNewKeyring: nodeify(keyringController.addNewKeyring, keyringController),
       saveAccountLabel: nodeify(keyringController.saveAccountLabel, keyringController),
       exportAccount: nodeify(keyringController.exportAccount, keyringController),
@@ -512,6 +512,18 @@ module.exports = class MetamaskController extends EventEmitter {
     })
     .then(keyring => keyring.getAccounts())
     .then((accounts) => this.preferencesController.setSelectedAddress(accounts[0]))
+    .then(() => { cb(null, this.keyringController.fullUpdate()) })
+    .catch((reason) => { cb(reason) })
+  }
+
+  createNewVaultAndRestore (password, seed, cb) {
+    this.keyringController.clearKeyrings()
+    // this.accountTracker.removeAllAccounts()
+    this.keyringController.createNewVaultAndRestore(password, seed)
+    .then(this.keyringController.getAccounts())
+    .then((accounts) => {
+      this.preferencesController.setSelectedAddress(accounts[0])
+    })
     .then(() => { cb(null, this.keyringController.fullUpdate()) })
     .catch((reason) => { cb(reason) })
   }

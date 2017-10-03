@@ -231,6 +231,7 @@ function createNewVaultAndRestore (password, seed) {
     log.debug(`background.createNewVaultAndRestore`)
     background.createNewVaultAndRestore(password, seed, (err) => {
       dispatch(actions.hideLoadingIndication())
+      forceUpdateMetamaskState(dispatch)
       if (err) return dispatch(actions.displayWarning(err.message))
       dispatch(actions.showAccountsPage())
     })
