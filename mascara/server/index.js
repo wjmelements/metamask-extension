@@ -16,6 +16,7 @@ module.exports = createMetamascaraServer
 function createMetamascaraServer () {
 
   const chromeDistPath = path.join(__dirname, '/../../dist/chrome')
+  const mascaraDistPath = path.join(__dirname, '/../../dist/mascara')
 
   // start bundlers
   const metamascaraBundle = createBundle(path.join(__dirname, '/../src/mascara.js'))
@@ -27,38 +28,27 @@ function createMetamascaraServer () {
   const server = express()
 
   // cdn seed manifest
-  // readDir(chromeDistPath, (err, files) => {
-  //   if (err) throw err
-  //   console.log(files)
-  // })
   let manifest = null
-  var stream = readdirp({ root: chromeDistPath })
-  stream
-  .on('warn', function (err) {
-    console.error('non-fatal error', err);
-    // optionally call stream.destroy() here in order to abort and cause 'close' to be emitted
-  })
+  es.merge(
+    readdirp({ root: chromeDistPath }),
+    readdirp({ root: mascaraDistPath })
+  )
   .on('error', function (err) { console.error('fatal error', err); })
   .pipe(es.mapSync((entry) => {
-    // console.log('progress', entry)
     const fileContent = fs.readFileSync(entry.fullPath)
     return {
       url: `https://cdn-seed.metamask.io/${entry.path}`,
       byteSize: entry.stat.size,
-      md5:  crypto.createHash('md5').update(fileContent).digest('base64'),
+      md5: crypto.createHash('md5').update(fileContent).digest('base64'),
     }
   }))
   .on('error', function (err) { console.error('fatal error', err); })
   .pipe(concat(manifestIsDone))
-
   function manifestIsDone(assets) {
-    // console.log(assets)
     manifest = 'TsvHttpData-1.0\n' + assets.map(asset => `${asset.url}\t${asset.byteSize}\t${asset.md5}`).join('\n')
-    console.log('manifest ready')
+    console.log('cdn seed manifest ready!')
   }
-
   server.get('/manifest.tsv', (req, res, next) => {
-    console.log('requesting manifest... ready?', !!manifest)
     res.send(manifest)
   })
 
