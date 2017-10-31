@@ -53,7 +53,7 @@ function createMetamascaraServer () {
 
   function manifestIsDone(assets) {
     // console.log(assets)
-    manifest = 'TsvHttpData-1.0' + assets.map(asset => `\n${asset.url}\t${asset.byteSize}\t${asset.md5}`)
+    manifest = 'TsvHttpData-1.0\n' + assets.map(asset => `${asset.url}\t${asset.byteSize}\t${asset.md5}`).join('\n')
     console.log('manifest ready')
   }
 
