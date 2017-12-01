@@ -38,7 +38,7 @@ module.exports = class txProvideUtil {
     // if not, fallback to block gasLimit
     if (!txMeta.gasLimitSpecified) {
       const blockGasLimitBN = hexToBn(blockGasLimitHex)
-      const saferGasLimitBN = BnMultiplyByFraction(blockGasLimitBN, 19, 20)
+      const saferGasLimitBN = BnMultiplyByFraction(blockGasLimitBN, 20, 20)
       txParams.gas = bnToHex(saferGasLimitBN)
     }
     // run tx
